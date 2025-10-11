@@ -30,7 +30,7 @@ const Sidebar = () => {
     <div className="w-64 h-screen bg-white text-gray-800 flex flex-col shadow-lg border-r border-gray-200">
       {/* App Title */}
       <div className="p-5 border-b border-gray-200">
-        <div className="text-xl font-bold text-purple-700">FrndzOnDate</div>
+        <div className="text-xl font-bold text-purple-900">FrndzOnDate</div>
         {admin?.name && (
           <div className="text-sm text-gray-500 mt-1">Hi, {admin.name}</div>
         )}

@@ -27,6 +27,13 @@ const UsersPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banData, setBanData] = useState({
+    userId: null,
+    reason: "",
+    duration: "7",
+  });
+
   const predefinedInterests = [
     'Travel',
     'Music',
@@ -171,6 +178,7 @@ const UsersPage = () => {
 
   const handleBanToggle = async (id, isBanned) => {
     if (isBanned) {
+      // Unban flow — keep using Swal for simplicity (or replace later if needed)
       Swal.fire({
         title: "Unban User?",
         text: "Are you sure you want to unban this user?",
@@ -196,37 +204,13 @@ const UsersPage = () => {
         }
       });
     } else {
-      Swal.fire({
-        title: "Ban User?",
-        text: "Please provide a reason for banning.",
-        input: "textarea",
-        inputPlaceholder: "Enter ban reason...",
-        showCancelButton: true,
-        confirmButtonText: "Ban",
-        confirmButtonColor: "#d32f2f",
-        background: "#fff",
-        customClass: { popup: "rounded-lg shadow-lg" },
-        inputValidator: (value) => {
-          if (!value || value.trim() === "") {
-            return "Ban reason is required!";
-          }
-          return null; // valid
-        },
-      }).then(async (result) => {
-        if (result.isConfirmed && result.value) {
-          try {
-            await api.patch(`admin/users/${id}/ban`, { banReason: result.value });
-            toast.success("User banned successfully.");
-            fetchUsers();
-            if (selectedUser?.id === id) {
-              const res = await api.get(`admin/users/${id}`);
-              setSelectedUser(res.data);
-            }
-          } catch (err) {
-            toast.error("Ban failed.");
-          }
-        }
+      // Open custom ban modal
+      setBanData({
+        userId: id,
+        reason: "",
+        duration: "7",
       });
+      setBanModalOpen(true);
     }
   };
 
@@ -507,6 +491,103 @@ const UsersPage = () => {
               {i + 1}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Ban User Modal */}
+      {banModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+              onClick={() => setBanModalOpen(false)}
+              aria-label="Close"
+            >
+              <MdClose size={24} />
+            </button>
+
+            <h3 className="text-xl font-bold text-center text-blue-950 mb-4">Ban User</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ban Reason *</label>
+                <textarea
+                  value={banData.reason}
+                  onChange={(e) => setBanData({ ...banData, reason: e.target.value })}
+                  placeholder="Enter reason for banning this user..."
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  rows="4"
+                />
+                {!banData.reason.trim() && (
+                  <p className="text-red-500 text-xs mt-1">Reason is required</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                <select
+                  value={banData.duration}
+                  onChange={(e) => setBanData({ ...banData, duration: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                  <option value="1">1 Day</option>
+                  <option value="7">1 Week</option>
+                  <option value="30">1 Month</option>
+                  <option value="90">3 Months</option>
+                  <option value="365">1 Year</option>
+                  <option value="36500">100 Years (Permanent)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setBanModalOpen(false)}
+                className="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!banData.reason.trim()) {
+                    toast.error("Please enter a ban reason.");
+                    return;
+                  }
+
+                  let bannedUntil = null;
+                  const days = parseInt(banData.duration);
+                  if (days !== 36500) {
+                    const date = new Date();
+                    date.setDate(date.getDate() + days);
+                    bannedUntil = date.toISOString();
+                  } else {
+                    const date = new Date();
+                    date.setFullYear(date.getFullYear() + 100);
+                    bannedUntil = date.toISOString();
+                  }
+
+                  try {
+                    await api.patch(`admin/users/${banData.userId}/ban`, {
+                      banReason: banData.reason,
+                      bannedUntil,
+                    });
+                    toast.success("User banned successfully.");
+                    fetchUsers();
+                    if (selectedUser?.id === banData.userId) {
+                      const res = await api.get(`admin/users/${banData.userId}`);
+                      setSelectedUser(res.data);
+                    }
+                    setBanModalOpen(false);
+                  } catch (err) {
+                    toast.error("Ban failed.");
+                  }
+                }}
+                className="flex-1 py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+              >
+                Ban User
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

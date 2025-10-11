@@ -50,17 +50,17 @@ const StarRating = ({ rating = 0 }) => {
 const statusBadgeClass = (status) => {
   switch ((status || "").toLowerCase()) {
     case "ended":
-      return "text-green-700 bg-green-100";
+      return "bg-green-100 text-green-800";
     case "missed":
-      return "text-red-700 bg-red-100";
+      return "bg-red-100 text-red-800";
     case "cancelled":
-      return "text-yellow-700 bg-yellow-100";
+      return "bg-yellow-100 text-yellow-800";
     case "rejected":
-      return "text-gray-700 bg-gray-200";
+      return "bg-gray-100 text-gray-800";
     case "accepted":
-      return "text-blue-600 bg-blue-100";
+      return "bg-blue-100 text-blue-800";
     default:
-      return "bg-gray-800 text-white";
+      return "bg-gray-100 text-gray-800";
   }
 };
 
@@ -228,123 +228,89 @@ const CallsPage = () => {
           <CircularProgress />
         </Box>
       ) : (
-        // Outer rounded container
-        <div className="rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-          {/* Scrollable area: header will scroll together with rows */}
-          <div className="overflow-auto" style={{ maxHeight: "70vh" }}>
-            <table className="min-w-full w-full table-auto">
-              <thead>
-                <tr className="bg-purple-100">
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">S. No</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Caller</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Receiver</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Type</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Status</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Duration</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Created</th>
-                  <th className="text-left text-blue-900 font-bold text-sm px-4 py-3 border-b">Action</th>
-                </tr>
-              </thead>
+        <TableContainer component={Paper} elevation={3}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>S. No</TableCell>
+                <TableCell>Caller</TableCell>
+                <TableCell>Receiver</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Duration</TableCell>
+                <TableCell>Created</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {calls.length > 0 ? (
+                calls.map((call, index) => (
+                  <TableRow key={call.id}>
+                    <TableCell>{(page - 1) * limit + index + 1}</TableCell>
 
-              <tbody>
-                {calls.length > 0 ? (
-                  calls.map((call, index) => (
-                    <tr
-                      key={call.id}
-                      className="bg-white hover:bg-purple-50 transition-colors duration-150"
-                    >
-                      <td className="px-4 py-7 border-b align-top">
-                        {(page - 1) * limit + index + 1}
-                      </td>
+                    <TableCell>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar src={call.fromUser?.photo || ""} />
+                        <Typography>{call.fromUser?.name || "Unknown"}</Typography>
+                      </Box>
+                    </TableCell>
 
-                      {/* Caller */}
-                      <td className="px-4 py-4 border-b align-top">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={call.fromUser?.photo || "/placeholder.png"}
-                            alt={call.fromUser?.name || "caller"}
-                            className="w-14 h-14 rounded-full object-cover"
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-800">
-                              {call.fromUser?.name || "Unknown"}
-                            </span>                            
-                          </div>
-                        </div>
-                      </td>
+                    <TableCell>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar src={call.toUser?.photo || ""} />
+                        <Typography>{call.toUser?.name || "Unknown"}</Typography>
+                      </Box>
+                    </TableCell>
 
-                      {/* Receiver */}
-                      <td className="px-4 py-4 border-b align-top">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={call.toUser?.photo || "/placeholder.png"}
-                            alt={call.toUser?.name || "receiver"}
-                            className="w-14 h-14 rounded-full object-cover"
-                          />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-gray-800">
-                              {call.toUser?.name || "Unknown"}
-                            </span>                            
-                          </div>
-                        </div>
-                      </td>
+                    <TableCell>
+                      <Tooltip title={call.callType}>
+                        {call.callType === "video" ? (
+                          <Videocam color="info" />
+                        ) : (
+                          <Call color="primary" />
+                        )}
+                      </Tooltip>
+                    </TableCell>
 
-                      {/* Type */}
-                      <td className="px-4 py-7 border-b align-top">
-                        <div className="flex items-center gap-2">
-                          {call.callType === "video" ? <Videocam className="text-blue-700" /> : <Call className="text-blue-700" />}
-                          <span className="text-sm text-gray-700 capitalize">{call.callType || "-"}</span>
-                        </div>
-                      </td>
+                    <TableCell>
+                      <Chip
+                        label={call.status}
+                        color={statusColors[call.status] || "default"}
+                        size="small"
+                      />
+                    </TableCell>
 
-                      {/* Status badge (custom) */}
-                      <td className="px-4 py-7 border-b align-top">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${statusBadgeClass(
-                            call.status
-                          )}`}
-                        >
-                          {call.status || "-"}
-                        </span>
-                      </td>
+                    <TableCell>
+                      {call.duration
+                        ? `${Math.floor(call.duration / 60)}m ${call.duration % 60}s`
+                        : "-"}
+                    </TableCell>
 
-                      {/* Duration */}
-                      <td className="px-4 py-7 border-b align-top">
-                        <span className="text-sm text-gray-700">
-                          {formatDuration(call.duration)}
-                        </span>
-                      </td>
+                    <TableCell>
+                      {call.createdAt
+                        ? new Date(call.createdAt).toLocaleString()
+                        : "-"}
+                    </TableCell>
 
-                      {/* Created */}
-                      <td className="px-4 py-7 border-b align-top">
-                        <span className="text-sm text-gray-700">
-                          {call.createdAt ? new Date(call.createdAt).toLocaleString() : "-"}
-                        </span>
-                      </td>
-
-                      {/* Action */}
-                      <td className="px-4 py-7 border-b align-top">
-                        <button
-                          onClick={() => handleOpenModal(call)}
-                          className="p-1 rounded hover:bg-gray-100 transition"
-                          aria-label="View details"
-                        >
+                    <TableCell>
+                      <Tooltip title="View Details">
+                        <IconButton onClick={() => handleOpenModal(call)}>
                           <Visibility />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={8} className="text-center py-10 text-gray-500">
-                      No call records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} align="center" sx={{ py: 5 }}>
+                    No call records found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
       {/* Pagination */}
@@ -466,7 +432,6 @@ const UserCard = ({ user, role }) => (
     <h3 className="font-semibold text-gray-800 text-center">
       {user?.name || "-"}
     </h3>
-    <span className="text-xs text-gray-500">ID: {user?.id || "-"}</span>
     <p className="text-sm text-purple-900">{role}</p>
   </div>
 );
