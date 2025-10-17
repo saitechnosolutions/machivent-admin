@@ -10,7 +10,7 @@ import { BiUserCheck, BiUserX } from "react-icons/bi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
-import { Select, MenuItem, FormControl, InputLabel, Paper, TextField, Button, Chip } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Paper, TextField, Box, Typography, Chip } from "@mui/material";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -738,13 +738,27 @@ const UsersPage = () => {
                   </>
                 ) : (
                   <>
-                    <p><span className="font-medium">ID:</span> {selectedUser.id}</p>
-                    <p><span className="font-medium">Email:</span> {selectedUser.email || "—"}</p>
-                    <p><span className="font-medium">Phone:</span> {selectedUser.phone || "—"}</p>
-                    <p><span className="font-medium">Gender:</span> {selectedUser.gender || "—"}</p>
-                    <p><span className="font-medium">DOB:</span> {selectedUser.dateOfBirth || "—"}</p>
-                    <p><span className="font-medium">City:</span> {selectedUser.city || "—"}</p>
-                    <p><span className="font-medium">Bio:</span> {selectedUser.bio || "—"}</p>
+                    <Typography variant="body2">
+                      <strong>ID:</strong> {selectedUser.id}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Email:</strong> {selectedUser.email || "—"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Phone:</strong> {selectedUser.phone || "—"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Gender:</strong> {selectedUser.gender || "—"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>DOB:</strong> {selectedUser.dateOfBirth ? new Date(selectedUser.dateOfBirth).toLocaleDateString() : "—"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>City:</strong> {selectedUser.city || "—"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Bio:</strong> {selectedUser.bio || "—"}
+                    </Typography>
                   </>
                 )}
               </div>
@@ -795,32 +809,41 @@ const UsersPage = () => {
                   </>
                 ) : (
                   <>
-                    <p className="font-medium">Interests:</p>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {selectedUser.interests?.length
-                        ? selectedUser.interests.map((i) => (
-                            <Chip
-                              key={i}
-                              label={i}
-                              size="small"
-                              sx={{ backgroundColor: '#e3f2fd', color: '#1976d2', marginRight: '4px', marginBottom: '4px' }}
-                            />
-                          ))
-                        : "—"}
-                    </div>
-                    <p className="font-medium">Languages:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {selectedUser.languages?.length
-                        ? selectedUser.languages.map((l) => (
-                            <Chip
-                              key={l}
-                              label={l}
-                              size="small"
-                              sx={{ backgroundColor: '#e8f5e8', color: '#2e7d32', marginRight: '4px', marginBottom: '4px' }}
-                            />
-                          ))
-                        : "—"}
-                    </div>
+                    <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
+                      Interests:
+                    </Typography>
+                    {selectedUser.interests?.length ? (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.interests.map((i) => (
+                          <Chip
+                            key={i}
+                            label={i}
+                            size="small"
+                            sx={{ backgroundColor: '#e3f2fd', color: '#1976d2' }}
+                          />
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">—</Typography>
+                    )}
+
+                    <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 1 }} gutterBottom>
+                      Languages:
+                    </Typography>
+                    {selectedUser.languages?.length ? (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.languages.map((l) => (
+                          <Chip
+                            key={l}
+                            label={l}
+                            size="small"
+                            sx={{ backgroundColor: '#e8f5e8', color: '#2e7d32' }}
+                          />
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">—</Typography>
+                    )}
                   </>
                 )}
               </div>

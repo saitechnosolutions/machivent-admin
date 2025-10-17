@@ -6,7 +6,7 @@ import { RxDashboard } from "react-icons/rx";
 import { IoMdCall } from "react-icons/io";
 import { FiUsers } from "react-icons/fi";
 // Import React Icons
-import {  FaChartBar, FaCoins, FaUserShield, FaSignOutAlt } from "react-icons/fa";
+import {  FaChartBar, FaCoins, FaUserShield, FaSignOutAlt, FaWallet } from "react-icons/fa";
 
 const Sidebar = () => {
   const { admin, logout } = useContext(AuthContext);
@@ -18,6 +18,7 @@ const Sidebar = () => {
     { name: "Calls", path: "/calls", icon: IoMdCall },
     { name: "Reports", path: "/reports", icon: FaChartBar },
     { name: "Coins", path: "/coins", icon: FaCoins },
+    { name: "Wallets", path: "/wallet", icon: FaWallet },
     { name: "Admins", path: "/admins", icon: FaUserShield },
   ];
 

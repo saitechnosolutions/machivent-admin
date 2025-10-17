@@ -10,6 +10,7 @@ import ReportsPage from "../pages/Reports/ReportsPage";
 import CoinsPage from "../pages/Coins/CoinsPage";
 import AdminsPage from "../pages/Admins/AdminsPage";
 import Layout from "../components/Layout";
+import WalletPage from "../pages/Wallets/WalletPage";
 
 const AppRoutes = () => {
   return (
@@ -23,6 +24,7 @@ const AppRoutes = () => {
       <Route path="/calls" element={ <ProtectedRoute> <Layout> <CallsPage /> </Layout> </ProtectedRoute> }/>
       <Route path="/reports" element={ <ProtectedRoute> <Layout> <ReportsPage /> </Layout> </ProtectedRoute> }/>      
       <Route path="/coins" element={ <ProtectedRoute> <Layout> <CoinsPage /> </Layout> </ProtectedRoute> }/>
+      <Route path="/wallet" element={ <ProtectedRoute> <Layout> <WalletPage /> </Layout> </ProtectedRoute> }/>
       <Route path="/admins" element={ <ProtectedRoute> <Layout> <AdminsPage /> </Layout> </ProtectedRoute> }/>
 
       {/* Fallback */}
