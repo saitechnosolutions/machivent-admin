@@ -16,8 +16,8 @@ const Sidebar = () => {
     { name: "Dashboard", path: "/dashboard", icon: RxDashboard },
     { name: "Users", path: "/users", icon: FiUsers },
     { name: "Calls", path: "/calls", icon: IoMdCall },
-    { name: "Reports", path: "/reports", icon: FaChartBar },
-    { name: "Coins", path: "/coins", icon: FaCoins },
+    { name: "User Reports", path: "/reports", icon: FaChartBar },
+    { name: "Call Rates & Coins", path: "/coins", icon: FaCoins },
     { name: "Wallets", path: "/wallet", icon: FaWallet },
     { name: "Admins", path: "/admins", icon: FaUserShield },
   ];

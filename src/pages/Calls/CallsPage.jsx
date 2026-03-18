@@ -261,7 +261,7 @@ const CallsPage = () => {
                       <td className="px-4 py-4 border-b align-top">
                         <div className="flex items-center gap-3">
                           <img
-                            src={call.fromUser?.photo || "/placeholder.png"}
+                            src={call.fromUser?.photo || "/app_icon.png"}
                             alt={call.fromUser?.name || "caller"}
                             className="w-14 h-14 rounded-full object-cover"
                           />
@@ -277,7 +277,7 @@ const CallsPage = () => {
                       <td className="px-4 py-4 border-b align-top">
                         <div className="flex items-center gap-3">
                           <img
-                            src={call.toUser?.photo || "/placeholder.png"}
+                            src={call.toUser?.photo || "/app_icon.png"}
                             alt={call.toUser?.name || "receiver"}
                             className="w-14 h-14 rounded-full object-cover"
                           />
@@ -407,7 +407,7 @@ const CallsPage = () => {
                     : "-"
                 }
               />
-              <div className="flex flex-col">
+              {/* <div className="flex flex-col">
                 <span className="text-sm text-gray-500">Caller Rating</span>
                 {selectedCall.callerRating ? (
                   <StarRating rating={selectedCall.callerRating} />
@@ -423,13 +423,10 @@ const CallsPage = () => {
                 ) : (
                   <span className="text-gray-700">-</span>
                 )}
-              </div>
+              </div> */}
 
-              <Detail label="Caller Comment" value={selectedCall.callerComment || "-"} />
-              <Detail
-                label="Receiver Comment"
-                value={selectedCall.receiverComment || "-"}
-              />
+              {/* <Detail label="Caller Comment" value={selectedCall.callerComment || "-"} />
+              <Detail label="Receiver Comment" value={selectedCall.receiverComment || "-"} /> */}
             </div>
 
             <div className="mt-6 flex justify-center">
@@ -459,7 +456,7 @@ const Detail = ({ label, value }) => (
 const UserCard = ({ user, role }) => (
   <div className="flex flex-col items-center bg-purple-50 p-4 rounded-xl w-40 shadow-md">
     <img
-      src={user?.photo || "/placeholder.png"}
+      src={user?.photo || "/app_icon.png"}
       alt={role}
       className="w-20 h-20 rounded-full object-cover mb-2"
     />

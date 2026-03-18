@@ -10,7 +10,7 @@ import ReportsPage from "../pages/Reports/ReportsPage";
 import CoinsPage from "../pages/Coins/CoinsPage";
 import AdminsPage from "../pages/Admins/AdminsPage";
 import Layout from "../components/Layout";
-import WalletPage from "../pages/Wallets/WalletPage";
+import WalletPage from "../pages/Wallets/WalletsPage";
 
 const AppRoutes = () => {
   return (

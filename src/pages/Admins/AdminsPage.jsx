@@ -93,9 +93,14 @@ const AdminsPage = () => {
 
     if (result.isConfirmed) {
       try {
-        await delete(`/admin/${id}`);
-        fetchAdmins();
-        Swal.fire('Deleted!', 'Admin has been soft deleted.', 'success');
+        const response = await api.delete(`/admin/${id}`);
+
+        if (response.status === 200) {
+          await fetchAdmins();
+          Swal.fire('Deleted!', 'Admin has been soft deleted.', 'success');
+        } else {
+          Swal.fire('Error!', 'Unexpected response from server.', 'error');
+        }
       } catch (err) {
         Swal.fire('Error!', err.response?.data?.message || 'Failed to delete admin', 'error');
       }
@@ -126,11 +131,29 @@ const AdminsPage = () => {
 
   // Handle restore
   const restoreAdmin = async (id) => {
-    try {
-      await api.post(`/admin/${id}/restore`);
-      fetchAdmins();
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to restore admin");
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You are about to restore this admin.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, restore it!',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#1976d2',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await api.post(`/admin/${id}/restore`);
+
+        if (response.status === 200) {
+          await fetchAdmins();
+          Swal.fire('Restored!', 'Admin has been successfully restored.', 'success');
+        } else {
+          Swal.fire('Error!', 'Unexpected response from server.', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error!', err.response?.data?.message || 'Failed to restore admin', 'error');
+      }
     }
   };
 

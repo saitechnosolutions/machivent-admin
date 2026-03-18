@@ -782,7 +782,7 @@ const UsersPage = () => {
                     </Typography>
                     <Typography variant="body2">
                       <strong>Bio:</strong> {selectedUser.bio || "—"}
-                    </Typography>
+                    </Typography
                   </>
                 )}
               </div>

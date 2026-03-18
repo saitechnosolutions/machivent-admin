@@ -1,10 +1,25 @@
 // src/pages/Reports/ReportsPage.jsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import Pagination from "@mui/material/Pagination";
 import "react-datepicker/dist/react-datepicker.css";
+
+  function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+
+      return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
+  }
 
 const ReportsPage = () => {
   const [reports, setReports] = useState([]);
@@ -20,16 +35,29 @@ const ReportsPage = () => {
   // Calculate total pages
   const totalPages = Math.ceil(total / limit);
 
+  const debouncedSearch = useDebounce(searchText, 500);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, debouncedSearch, startDate, endDate]);
+
   // Fetch reports
   useEffect(() => {
     const fetchReports = async () => {
       setLoading(true);
       try {
-        const res = await api.get("/reports/", {
-          params: { page, limit }
+        const res = await api.get("/reports", {
+          params: {
+            page,
+            limit,
+            status: statusFilter,
+            search: debouncedSearch,
+            startDate: startDate ? startDate.toISOString().split("T")[0] : undefined,
+            endDate: endDate ? endDate.toISOString().split("T")[0] : undefined,
+          },
         });
         setReports(res.data.data || []);
-        setTotal(res.data.meta?.total || 0); // ✅ save total count
+        setTotal(res.data.meta?.total || 0);
       } catch (error) {
         console.error("Failed to fetch reports:", error);
         Swal.fire("Error!", "Failed to load reports.", "error");
@@ -39,18 +67,78 @@ const ReportsPage = () => {
     };
 
     fetchReports();
-  }, [page, limit]);
+  }, [page, limit, statusFilter, debouncedSearch, startDate, endDate]);
 
   // Handle status update
   const handleStatusChange = async (reportId, newStatus) => {
     try {
-      await api.put(`/reports/${reportId}`, { status: newStatus });
+      // Update status in DB
+      const res = await api.put(`/reports/${reportId}`, { status: newStatus });
+
+      // Update UI instantly
       setReports((prevReports) =>
         prevReports.map((report) =>
           report.id === reportId ? { ...report, status: newStatus } : report
         )
       );
+
       Swal.fire("Updated!", "Report status has been updated.", "success");
+
+      // ✅ Send notification to reporter
+      try {
+        // Find the updated report to get reporter info
+        const updatedReport = reports.find((r) => r.id === reportId);
+        if (updatedReport?.reporter?.id) {
+          let title = "";
+          let body = "";
+
+          switch (newStatus) {
+            case "reviewed":
+              title = "Report Reviewed";
+              body = "Your report has been reviewed by our team.";
+              break;
+
+            case "action_taken":
+              title = "Action Taken";
+              body = "We’ve taken appropriate action based on your report.";
+              break;
+
+            case "pending":
+              title = "Report Pending";
+              body = "Your report is awaiting review. Thank you for your patience.";
+              break;
+
+            default:
+              title = "Report Update";
+              body = "The status of your report has been updated.";
+              break;
+          }
+
+          const notificationPayload = {
+            title,
+            body,
+            data: {
+              type: "report_update",
+              reportId: String(reportId),
+              newStatus,
+            },
+          };
+
+          await api.post("/notifications/send-to-users", {
+            userIds: [updatedReport.reporter.id],
+            ...notificationPayload,
+          });
+        }
+
+      } catch (notifyErr) {
+        console.warn("Notification failed:", notifyErr);
+        Swal.fire({
+          icon: "info",
+          title: "Status updated, but notification failed",
+          text: notifyErr.response?.data?.error || "Couldn't send notification",
+          confirmButtonColor: "#1976d2",
+        });
+      }
     } catch (error) {
       console.error("Failed to update report:", error);
       Swal.fire("Error!", "Failed to update report.", "error");
@@ -82,43 +170,6 @@ const ReportsPage = () => {
       }
     }
   };
-
-  // Filter reports (client-side search, status, and date)
-  const filteredReports = useMemo(() => {
-    let result = [...reports];
-
-    if (searchText.trim()) {
-      const text = searchText.toLowerCase();
-      result = result.filter((report) => {
-        return (
-          report.reported?.name?.toLowerCase().includes(text) ||
-          report.reporter?.name?.toLowerCase().includes(text) ||
-          report.reason?.toLowerCase().includes(text)
-        );
-      });
-    }
-
-    if (statusFilter !== "all") {
-      result = result.filter((report) => report.status === statusFilter);
-    }
-
-    if (startDate && endDate) {
-      result = result.filter((report) => {
-        const created = new Date(report.createdAt);
-        return created >= startDate && created <= endDate;
-      });
-    }
-
-    return result;
-  }, [reports, searchText, statusFilter, startDate, endDate]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-lg text-purple-700">Loading reports...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -155,7 +206,8 @@ const ReportsPage = () => {
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300 transition"
           />
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 items-center">
+            {/* Start Date */}
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
@@ -165,6 +217,8 @@ const ReportsPage = () => {
               placeholderText="Start Date"
               className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
+
+            {/* End Date */}
             <DatePicker
               selected={endDate}
               onChange={(date) => setEndDate(date)}
@@ -175,14 +229,31 @@ const ReportsPage = () => {
               placeholderText="End Date"
               className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
+
+            {/* Clear Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setStartDate(null);
+                setEndDate(null);
+              }}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg border border-gray-300 transition"
+            >
+              Clear
+            </button>
           </div>
+
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto">
-          {filteredReports.length === 0 ? (
+          {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-lg text-purple-700">Loading reports...</div>
+              </div>
+            ) : reports.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-white rounded-xl shadow-sm">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400 mb-4"
@@ -202,7 +273,7 @@ const ReportsPage = () => {
             </div>
           ) : (
             <div className="space-y-5">
-              {filteredReports.map((report) => (
+              {reports.map((report) => (
                 <div
                   key={report.id}
                   className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-5 border border-gray-100"
@@ -289,25 +360,27 @@ const ReportsPage = () => {
           )}
 
           {/* Pagination */}
-          <div className="flex justify-center items-center space-x-2 mt-8 pb-6">
-            <button
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition"
-            >
-              Previous
-            </button>
-            <span className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page >= totalPages}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition"
-            >
-              Next
-            </button>
+          <div className="flex justify-center items-center mt-8 pb-6">
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+              variant="outlined"
+              shape="rounded"
+              sx={{
+                "& .MuiPaginationItem-root": {
+                  color: "#4B5563", // text-gray-700
+                  borderRadius: "8px",
+                },
+                "& .Mui-selected": {
+                  backgroundColor: "#9370DB !important", // purple-500
+                  color: "white !important",
+                },
+              }}
+            />
           </div>
+
         </div>
       </div>
     </div>
