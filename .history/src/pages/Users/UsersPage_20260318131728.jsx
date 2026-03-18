@@ -944,8 +944,8 @@ const UsersPage = () => {
               {/* System Info */}
               <div className="bg-gray-50 p-4 rounded-xl">
                 <h3 className="font-semibold text-blue-900 mb-2">System Info</h3>
-                <p><span className="font-medium">Created:</span> {new Date(selectedUser.createdAt).toLocaleString()}</p>
-                <p><span className="font-medium">Updated:</span> {new Date(selectedUser.updatedAt).toLocaleString()}</p>
+                <p><span className="font-medium">Created:</span> {new Date(selectedUser.createdAt ?? 0).toLocaleString()}</p>
+                <p><span className="font-medium">Updated:</span> {new Date(selectedUser.updatedAt ?? 0).toLocaleString()}</p>
                 {selectedUser.deletedAt && (
                   <p className="text-red-600">
                     <span className="font-medium">Deleted:</span> {new Date(selectedUser.deletedAt).toLocaleString()}

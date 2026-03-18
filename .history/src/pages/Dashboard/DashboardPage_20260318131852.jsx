@@ -289,7 +289,7 @@ const DashboardPage = () => {
               <StatCard icon={Users} title="Total Users" value={overview.totalUsers} subtitle={`${overview.onlineUsers} online`} color="#3b82f6" />
               <StatCard icon={Phone} title="Total Calls" value={overview.totalCalls} subtitle={`${overview.totalAudioCalls} audio, ${overview.totalVideoCalls} video`} color="#8b5cf6" />
               <StatCard icon={Coins} title="Total Coins" value={overview.totalCoins.toLocaleString() ?? 0 } subtitle={`${overview.usersWithWallets} wallets`} color="#f59e0b" />
-              <StatCard icon={IndianRupee} title="Total Revenue" value={`₹${revenueAllTime.toLocaleString() ?? 0}`} subtitle="All time" color="#10b981" />
+              <StatCard icon={IndianRupee} title="Total Revenue" value={`₹${revenueAllTime.toLocaleString()}`} subtitle="All time" color="#10b981" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">

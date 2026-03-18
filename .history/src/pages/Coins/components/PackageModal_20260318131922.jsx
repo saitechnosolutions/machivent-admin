@@ -213,10 +213,10 @@ const PackageModal = ({ open, onClose, editData, refresh }) => {
                   Price per coin: <strong>₹{pricePerCoin}</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Total coins: <strong>{Number(form.coins).toLocaleString() ?? 0}</strong>
+                  Total coins: <strong>{Number(form.coins ?? 0).toLocaleString() ?? 0}</strong>
                 </Typography>
                 <Typography variant="body2">
-                  Package price: <strong>₹{Number(form.price).toLocaleString()  ?? 0}</strong>
+                  Package price: <strong>₹{Number(form.price ?? 0).toLocaleString()  ?? 0}</strong>
                 </Typography>
               </Alert>
             </>
