@@ -314,7 +314,7 @@ const ReportsPage = () => {
                         Created
                       </label>
                       <p className="text-gray-600">
-                        {new Date(report.createdAt).toLocaleString()}
+                        {new Date(report.createdAt).toLocaleString() ?? }
                       </p>
                     </div>
                   </div>

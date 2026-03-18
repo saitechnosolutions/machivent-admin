@@ -189,7 +189,7 @@ const CoinPackagesTab = () => {
                       {/* Coins */}
                       <Box display="flex" alignItems="baseline" gap={1} mb={2}>
                         <Typography variant="h3" fontWeight="800" color="primary.main">
-                          {pkg.coins.toLocaleString() }
+                          {pkg.coins.toLocaleString() ?? 0}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
                           coins

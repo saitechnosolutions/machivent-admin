@@ -410,7 +410,7 @@ export default function WalletsPage() {
                     Users with Wallets
                   </Typography>
                   <Typography variant="h4" fontWeight="700">
-                    {(summary.usersWithWallets ?? 0).toLocaleString() ?? 0}
+                    {summary.usersWithWallets?.toLocaleString() ?? 0}
                   </Typography>
                 </Box>
                 <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', width: 56, height: 56 }}>

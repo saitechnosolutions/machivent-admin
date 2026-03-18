@@ -189,7 +189,7 @@ const CoinPackagesTab = () => {
                       {/* Coins */}
                       <Box display="flex" alignItems="baseline" gap={1} mb={2}>
                         <Typography variant="h3" fontWeight="800" color="primary.main">
-                          {pkg.coins).toLocaleString()}
+                          {(pkg.coins ?? 0).toLocaleString()}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
                           coins
@@ -270,7 +270,7 @@ const CoinPackagesTab = () => {
                         </td>
                         <td style={{ padding: '20px 16px' }}>
                           <Chip 
-                            label={`${pkg.coins.toLocaleString()} coins`}
+                            label={`${pkg.coins ?? 0).toLocaleString()} coins`}
                             color="primary"
                             variant="outlined"
                           />
